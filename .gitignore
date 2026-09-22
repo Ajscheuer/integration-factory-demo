@@ -1,0 +1,8 @@
+bin/
+obj/
+.factory/session/
+*.user
+.vs/
+
+_to_delete/
+.factory/

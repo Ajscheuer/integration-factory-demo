@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Canonical product models. Everything under Generated/ comes from specs/product.openapi.yaml via `integration-cli import`. -->
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>disable</ImplicitUsings>
+    <NoWarn>$(NoWarn);CS8618;CS8625;CS1591</NoWarn>
+  </PropertyGroup>
+</Project>

@@ -1,0 +1,37 @@
+// Mapper — AI + human owned. Explicit transformations only (slide 05 "example-crm-mapper.ts").
+// Scaffolded once by integration-cli generate from the APPROVED mapping files; never regenerated while this file exists.
+// Each TODO(ai) lists the approved field mappings and the human decisions the code must honour.
+#nullable enable
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using {{ GeneratedNamespace }};
+
+namespace {{ Namespace }}
+{
+    public static class {{ MapperClass }}
+    {
+        private const string ProviderKey = "{{ Connector }}";
+{{~ for mp in Mappers ~}}
+
+        /// <summary>
+        /// {{ mp.SourceSchema }} → {{ mp.TargetSchema }} (operation {{ mp.Operation }}).
+        /// Approved mapping: connectors/{{ Connector }}/mapping/{{ mp.Operation }}.mapping.json
+        /// </summary>
+        public static {{ mp.TargetType }} {{ mp.Name }}({{ mp.SourceType }} source)
+        {
+            ArgumentNullException.ThrowIfNull(source);
+            // TODO(ai): implement the approved field mappings below. Do not add, drop or reinterpret a mapping.
+{{~ for f in mp.Fields ~}}
+            //   {{ f.Source }} -> {{ f.Target }}  [{{ f.Confidence | math.format "0.00" }}]  {{ f.Transform }}{{ if mp.Decisions[f.Target] }}
+            //       HUMAN DECISION: {{ mp.Decisions[f.Target] }}{{ end }}
+{{~ end ~}}
+{{~ if mp.Fields.size == 0 ~}}
+            //   (no approved mapping found for {{ mp.Operation }} at generation time — run `integration-cli map` first)
+{{~ end ~}}
+            throw new NotImplementedException("TODO(ai): {{ mp.Name }}");
+        }
+{{~ end ~}}
+    }
+}

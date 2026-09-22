@@ -1,0 +1,30 @@
+{
+  "operation": "getPlanet",
+  "productOperation": "getPlanet",
+  "providerOperation": "GET /planets/{id}/",
+  "canonicalModel": "Planet",
+  "confidence": 0.88,
+  "fieldMappings": [
+    { "source": "url (last non-empty path segment)", "target": "externalId", "confidence": 0.97, "transform": "Last non-empty path segment of `url`.", "requiresHumanApproval": false },
+    { "source": "(constant)", "target": "provider", "confidence": 1.0, "transform": "Constant \"swapi\".", "requiresHumanApproval": false },
+    { "source": "name", "target": "name", "confidence": 0.99, "transform": "Copy, trimmed.", "requiresHumanApproval": false },
+    { "source": "diameter", "target": "diameterKm", "confidence": 0.9, "transform": "Parse invariant integer; \"unknown\"/unparsable -> null.", "requiresHumanApproval": false },
+    { "source": "rotation_period", "target": "rotationPeriodHours", "confidence": 0.85, "transform": "Parse invariant double; \"unknown\"/unparsable -> null.", "requiresHumanApproval": false },
+    { "source": "orbital_period", "target": "orbitalPeriodDays", "confidence": 0.85, "transform": "Parse invariant double; \"unknown\"/unparsable -> null.", "requiresHumanApproval": false },
+    { "source": "surface_water", "target": "surfaceWaterPercent", "confidence": 0.8, "transform": "Parse invariant double; \"unknown\"/unparsable -> null.", "requiresHumanApproval": false, "notes": "Provider documents a percentage; product field is a percentage. No rescaling." },
+    { "source": "population", "target": "population", "confidence": 0.82, "transform": "Remove thousands separators, parse invariant long; \"unknown\"/unparsable -> null.", "requiresHumanApproval": false, "notes": "Coruscant's population (1000000000000) fits in long; int would overflow." },
+    { "source": "climate", "target": "climates", "confidence": 0.9, "transform": "Split on \",\", trim, drop empty; \"unknown\" -> empty list.", "requiresHumanApproval": false },
+    { "source": "terrain", "target": "terrains", "confidence": 0.9, "transform": "Split on \",\", trim, drop empty; \"unknown\" -> empty list.", "requiresHumanApproval": false },
+    { "source": "url", "target": "sourceUrl", "confidence": 0.99, "transform": "Copy.", "requiresHumanApproval": false },
+    { "source": "edited", "target": "lastModifiedUtc", "confidence": 0.8, "transform": "Copy converted to UTC; null -> null.", "requiresHumanApproval": false }
+  ],
+  "unresolvedQuestions": [],
+  "approval": {
+    "status": "approved",
+    "approvedBy": "Andrew",
+    "approvedAtUtc": "2026-09-22T15:06:30Z",
+    "decisions": {}
+  },
+  "proposedBy": "mapping-agent",
+  "proposedAtUtc": "2026-09-22T15:03:00Z"
+}

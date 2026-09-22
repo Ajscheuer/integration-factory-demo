@@ -1,0 +1,31 @@
+# CI is the release policy (deck slide 09). The same gates an engineer runs locally run here; nothing else decides.
+name: validate-connectors
+
+on:
+  pull_request:
+  push:
+    branches: [main, develop]
+  workflow_dispatch:
+    inputs:
+      smoke:
+        description: "Also run the real-provider SANDBOX gate"
+        type: boolean
+        default: false
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 10.0.x
+      - name: Build the factory CLI
+        run: dotnet build src/Factory.Cli --nologo -v q
+      - name: Regeneration drift check (generated code must match specs + manifest)
+        run: |
+          dotnet run --project src/Factory.Cli --no-build -- import swapi
+          dotnet run --project src/Factory.Cli --no-build -- generate swapi
+          git diff --exit-code -- 'src/**/Generated/**' 'tests/**/Generated/**' || (echo "::error::Generated code is out of date — run import + generate and commit" && exit 1)
+      - name: Quality gates
+        run: dotnet run --project src/Factory.Cli --no-build -- validate swapi ${{ inputs.smoke && '--smoke' || '' }}

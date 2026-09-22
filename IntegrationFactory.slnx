@@ -1,0 +1,10 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Connectors.Swapi/Connectors.Swapi.csproj" />
+    <Project Path="src/Factory.Cli/Factory.Cli.csproj" />
+    <Project Path="src/Product.Canonical/Product.Canonical.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Connectors.Swapi.Tests/Connectors.Swapi.Tests.csproj" />
+  </Folder>
+</Solution>

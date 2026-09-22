@@ -1,0 +1,55 @@
+{
+  "connector": "swapi",
+  "displayName": "Star Wars API",
+  "provider": {
+    "spec": "specs/swapi.openapi.yaml",
+    "baseUrl": "https://swapi.dev/api",
+    "auth": { "type": "none" }
+  },
+  "product": {
+    "spec": "specs/product.openapi.yaml"
+  },
+  "operations": [
+    {
+      "name": "getCharacter",
+      "productOperation": "getCharacter",
+      "providerOperations": ["getPerson"],
+      "canonicalModel": "Character",
+      "description": "Look up one character by provider id and return the canonical Character.",
+      "smokeArgs": ["\"1\""]
+    },
+    {
+      "name": "searchCharacters",
+      "productOperation": "searchCharacters",
+      "providerOperations": ["listPeople"],
+      "canonicalModel": "CharacterPage",
+      "description": "Search characters by name with opaque cursor paging.",
+      "smokeArgs": ["\"sky\"", "null"]
+    },
+    {
+      "name": "getPlanet",
+      "productOperation": "getPlanet",
+      "providerOperations": ["getPlanet"],
+      "canonicalModel": "Planet",
+      "description": "Look up one planet by provider id and return the canonical Planet.",
+      "smokeArgs": ["\"1\""]
+    }
+  ],
+  "capabilities": {
+    "pagination": "cursor-url",
+    "rateLimit": "10000 requests/day (public, unauthenticated)",
+    "retries": true,
+    "webhooks": false
+  },
+  "generation": {
+    "namespace": "Connectors.Swapi",
+    "outputRoot": "src/Connectors.Swapi",
+    "testRoot": "tests/Connectors.Swapi.Tests",
+    "canonicalProject": "src/Product.Canonical",
+    "canonicalNamespace": "Product.Canonical"
+  },
+  "policy": {
+    "minAutoApproveConfidence": 0.8,
+    "policyFile": "policy/engineering-policy.md"
+  }
+}

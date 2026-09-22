@@ -1,0 +1,51 @@
+{
+  "operation": "searchCharacters",
+  "productOperation": "searchCharacters",
+  "providerOperation": "GET /people/",
+  "canonicalModel": "CharacterPage",
+  "confidence": 0.84,
+  "fieldMappings": [
+    {
+      "source": "results[]",
+      "target": "items",
+      "confidence": 0.95,
+      "transform": "Map each Person with the same rules as getCharacter (reuse ToCharacter). Order preserved.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "count",
+      "target": "totalCount",
+      "confidence": 0.9,
+      "transform": "Copy. Provider `count` is the total across all pages, not the page size.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "next",
+      "target": "nextPageToken",
+      "confidence": 0.72,
+      "transform": "null -> null; otherwise base64url-encode the full `next` URL as an opaque token. On the request side, a non-null pageToken is decoded, its `page` query value parsed and passed to listPeople(search, page).",
+      "requiresHumanApproval": true,
+      "notes": "Product wants an opaque cursor; provider exposes page numbers via URL. Encoding the URL keeps it opaque and provider-shaped, but leaks the provider host into the token. Alternative: encode just the page number."
+    },
+    {
+      "source": "(request) query",
+      "target": "(request) search",
+      "confidence": 0.9,
+      "transform": "Pass `query` trimmed as the provider `search` parameter. Empty query -> ConnectorException invalid_response? No: product marks query required, so pass through; provider returns all people for empty search.",
+      "requiresHumanApproval": false
+    }
+  ],
+  "unresolvedQuestions": [
+    "nextPageToken: encode the whole provider `next` URL, or only the page number? (Opaque either way; the URL form is provider-agnostic, the page form is smaller and host-free.)"
+  ],
+  "approval": {
+    "status": "approved",
+    "approvedBy": "Andrew",
+    "approvedAtUtc": "2026-09-22T15:06:00Z",
+    "decisions": {
+      "nextPageToken": "Encode only the page number as base64url of the text \"page=<n>\". Never put a provider host in a token the product stores."
+    }
+  },
+  "proposedBy": "mapping-agent",
+  "proposedAtUtc": "2026-09-22T15:02:30Z"
+}

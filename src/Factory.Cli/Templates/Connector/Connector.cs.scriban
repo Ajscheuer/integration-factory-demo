@@ -1,0 +1,47 @@
+// Connector implementation — AI + human owned (slide 05 "connector/").
+// Scaffolded once by integration-cli generate; never regenerated while this file exists.
+// Fill every TODO(ai) block; `integration-cli validate` fails while any marker remains.
+#nullable enable
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using {{ GeneratedNamespace }};
+
+namespace {{ Namespace }}
+{
+    /// <summary>
+    /// Transport + orchestration for {{ DisplayName }}. Talks to the provider ONLY through
+    /// <see cref="{{ ClientInterface }}"/>; all field semantics live in <see cref="{{ MapperClass }}"/>.
+    /// Allowed provider calls: {{ AllowedClientMethods | array.join ", " }}. Anything else fails the CONTRACT gate.
+    /// </summary>
+    public sealed class {{ ConnectorClass }} : {{ ConnectorInterface }}
+    {
+        private readonly {{ ClientInterface }} _client;
+
+        public {{ ConnectorClass }}({{ ClientInterface }} client)
+        {
+            _client = client ?? throw new ArgumentNullException(nameof(client));
+        }
+{{~ for op in Operations ~}}
+
+        /// <inheritdoc />
+        public async Task<{{ op.ReturnType }}> {{ op.MethodName }}({{ op.ParamList }}{{ if op.Params.size > 0 }}, {{ end }}CancellationToken cancellationToken = default)
+        {
+            // TODO(ai): {{ op.Name }} — call {{ for c in op.ProviderCalls }}{{ c.ClientMethod }} ({{ c.Method }} {{ c.Path }}){{ if !for.last }}, {{ end }}{{ end }},
+            //           translate provider errors per engineering policy (404 -> not found, 429/5xx -> retried by handler, else ConnectorException),
+            //           then return {{ MapperClass }}.{{ op.MapperMethod }}(response).
+            //           Mapping decisions: connectors/{{ Connector }}/mapping/{{ op.Name }}.mapping.json
+            await Task.CompletedTask;
+            throw new NotImplementedException("TODO(ai): {{ op.Name }}");
+        }
+{{~ end ~}}
+    }
+
+    /// <summary>Domain-safe error raised by the connector. Never carries raw provider payloads or secrets.</summary>
+    public sealed class ConnectorException : Exception
+    {
+        public ConnectorException(string message, string code, Exception? inner = null) : base(message, inner) => Code = code;
+        /// <summary>Stable application-level code: not_found | provider_unavailable | invalid_response | unauthorized.</summary>
+        public string Code { get; }
+    }
+}

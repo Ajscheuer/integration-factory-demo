@@ -1,0 +1,121 @@
+{
+  "operation": "getCharacter",
+  "productOperation": "getCharacter",
+  "providerOperation": "GET /people/{id}/",
+  "canonicalModel": "Character",
+  "confidence": 0.9,
+  "fieldMappings": [
+    {
+      "source": "url (last non-empty path segment)",
+      "target": "externalId",
+      "confidence": 0.97,
+      "transform": "Take the last non-empty segment of `url` (e.g. https://swapi.dev/api/people/1/ -> \"1\"). Never store the URL as the id.",
+      "requiresHumanApproval": false,
+      "notes": "Provider has no explicit id field; the URL is the only stable identifier."
+    },
+    {
+      "source": "(constant)",
+      "target": "provider",
+      "confidence": 1.0,
+      "transform": "Constant \"swapi\".",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "name",
+      "target": "name",
+      "confidence": 0.99,
+      "transform": "Copy, trimmed.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "height",
+      "target": "heightCm",
+      "confidence": 0.9,
+      "transform": "Parse as invariant integer; \"unknown\", empty or unparsable -> null.",
+      "requiresHumanApproval": false,
+      "notes": "Provider documents centimeters; unit matches."
+    },
+    {
+      "source": "mass",
+      "target": "massKg",
+      "confidence": 0.85,
+      "transform": "Remove thousands separators (\",\"), parse as invariant double; \"unknown\", empty or unparsable -> null.",
+      "requiresHumanApproval": false,
+      "notes": "Jabba's mass is \"1,358\" — separator must be stripped, not treated as a decimal point."
+    },
+    {
+      "source": "birth_year",
+      "target": "birthYear",
+      "confidence": 0.62,
+      "transform": "Match /^(\\d+(\\.\\d+)?)(BBY|ABY)$/ case-insensitively; BBY -> negative, ABY -> positive; \"unknown\" or no match -> null.",
+      "requiresHumanApproval": true,
+      "notes": "Product says negative = before Battle of Yavin, but does not say whether 0BBY/0ABY both map to 0 or whether unparsable values should be null or throw. Calendar semantics are a business decision."
+    },
+    {
+      "source": "gender",
+      "target": "gender",
+      "confidence": 0.55,
+      "transform": "Case-insensitive lookup: male -> Male, female -> Female, hermaphrodite -> Other, unknown -> Unknown. \"n/a\" is ambiguous (see unresolvedQuestions).",
+      "requiresHumanApproval": true,
+      "notes": "\"n/a\" is what SWAPI uses for droids. Whether a droid is Other (has a value, not in the binary) or Unknown (no data) changes downstream filters."
+    },
+    {
+      "source": "hair_color",
+      "target": "hairColors",
+      "confidence": 0.88,
+      "transform": "Split on \",\", trim each, drop empty; \"n/a\" and \"none\" -> empty list.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "eye_color",
+      "target": "eyeColor",
+      "confidence": 0.9,
+      "transform": "Copy trimmed; \"unknown\" or \"n/a\" -> null.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "homeworld (last path segment)",
+      "target": "homeworldId",
+      "confidence": 0.95,
+      "transform": "Last non-empty path segment of the homeworld URL; null/empty -> null.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "films[] (last path segment of each)",
+      "target": "filmIds",
+      "confidence": 0.95,
+      "transform": "Map each URL to its last non-empty path segment, preserving order; null -> empty list.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "url",
+      "target": "sourceUrl",
+      "confidence": 0.99,
+      "transform": "Copy.",
+      "requiresHumanApproval": false
+    },
+    {
+      "source": "edited",
+      "target": "lastModifiedUtc",
+      "confidence": 0.8,
+      "transform": "Copy `edited` converted to UTC; null -> null. (`created` is ignored.)",
+      "requiresHumanApproval": false,
+      "notes": "`edited` is the closer semantic match for 'last modified'."
+    }
+  ],
+  "unresolvedQuestions": [
+    "gender: does \"n/a\" (droids) map to Other or to Unknown?",
+    "birthYear: should an unparsable non-\"unknown\" value (e.g. \"12BBY?\") be null, or should the record be rejected as invalid_response?"
+  ],
+  "approval": {
+    "status": "approved",
+    "approvedBy": "Andrew",
+    "approvedAtUtc": "2026-09-22T15:05:00Z",
+    "decisions": {
+      "gender": "\"n/a\" -> Other. Droids are a real category, not missing data. Only \"unknown\" and unrecognised values -> Unknown.",
+      "birthYear": "Unparsable non-\"unknown\" values -> null. Bad calendar data must never fail a lookup."
+    }
+  },
+  "proposedBy": "mapping-agent",
+  "proposedAtUtc": "2026-09-22T15:02:00Z"
+}

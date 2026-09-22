@@ -1,0 +1,47 @@
+// Behavioral tests — shared ownership (slide 05 "tests/connector/").
+// Scaffolded once by integration-cli generate; the AI completes the assertions from the approved mapping,
+// engineers review them. `integration-cli validate` fails while any TODO(ai) marker remains.
+#nullable enable
+using System;
+using System.IO;
+using System.Text.Json;
+using Xunit;
+using {{ GeneratedNamespace }};
+using {{ Namespace }};
+
+namespace {{ TestNamespace }}.Connector
+{
+    public class {{ Pascal }}MapperTests
+    {
+        private static T Fixture<T>(string name)
+        {
+            var path = Path.Combine(AppContext.BaseDirectory, "Fixtures", name);
+            return JsonSerializer.Deserialize<T>(File.ReadAllText(path))
+                   ?? throw new InvalidOperationException($"fixture {name} did not deserialize");
+        }
+{{~ for mp in Mappers ~}}
+
+        [Fact]
+        public void {{ mp.Name }}_maps_the_recorded_fixture()
+        {
+            var source = Fixture<{{ mp.SourceType }}>("{{ mp.SourceSchema }}.json");
+
+            var result = {{ MapperClass }}.{{ mp.Name }}(source);
+
+            Assert.NotNull(result);
+            // TODO(ai): assert one expectation per approved field mapping in connectors/{{ Connector }}/mapping/{{ mp.Operation }}.mapping.json:
+{{~ for f in mp.Fields ~}}
+            //   {{ f.Target }}  <-  {{ f.Source }}  ({{ f.Transform }}){{ if mp.Decisions[f.Target] }}  DECISION: {{ mp.Decisions[f.Target] }}{{ end }}
+{{~ end ~}}
+        }
+
+        [Fact]
+        public void {{ mp.Name }}_handles_provider_sentinels()
+        {
+            // TODO(ai): cover "unknown" / "n/a" / empty inputs for every numeric, enum and list target of {{ mp.Name }};
+            //           each must produce the null/empty/Unknown value the transform rule specifies — never throw.
+            throw new NotImplementedException("TODO(ai): sentinel cases for {{ mp.Name }}");
+        }
+{{~ end ~}}
+    }
+}

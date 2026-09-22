@@ -1,0 +1,138 @@
+openapi: 3.0.3
+info:
+  title: Galactic Registry - product API (canonical model)
+  version: "1.0"
+  description: |
+    The product contract. This is *our* side of the integration: typed, canonical models that every
+    connector must produce regardless of provider quirks. Generated code (`Product.Canonical`) is
+    derived from this file by `integration-cli import` and is never edited by hand.
+paths:
+  /characters/{externalId}:
+    get:
+      operationId: getCharacter
+      summary: Canonical character lookup
+      parameters:
+        - name: externalId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Canonical character
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Character" }
+  /characters:
+    get:
+      operationId: searchCharacters
+      summary: Search characters by name (canonical paging)
+      parameters:
+        - name: query
+          in: query
+          required: true
+          schema: { type: string }
+        - name: pageToken
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        "200":
+          description: A page of canonical characters
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/CharacterPage" }
+  /planets/{externalId}:
+    get:
+      operationId: getPlanet
+      summary: Canonical planet lookup
+      parameters:
+        - name: externalId
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        "200":
+          description: Canonical planet
+          content:
+            application/json:
+              schema: { $ref: "#/components/schemas/Planet" }
+components:
+  schemas:
+    Gender:
+      type: string
+      description: Canonical gender vocabulary. Providers must be mapped onto this set explicitly.
+      enum: [Male, Female, Other, Unknown]
+    Character:
+      type: object
+      required: [externalId, provider, name, gender, hairColors]
+      properties:
+        externalId:
+          type: string
+          description: Stable id in the provider's namespace (not a URL).
+        provider:
+          type: string
+          description: Connector key that produced this record, e.g. "swapi".
+        name: { type: string }
+        heightCm:
+          type: integer
+          nullable: true
+          description: Height in centimeters; null when the provider does not know.
+        massKg:
+          type: number
+          format: double
+          nullable: true
+          description: Mass in kilograms; null when unknown.
+        birthYear:
+          type: number
+          format: double
+          nullable: true
+          description: |
+            Years relative to the Battle of Yavin. Negative = before (BBY), positive = after (ABY).
+            Null when unknown.
+        gender: { $ref: "#/components/schemas/Gender" }
+        hairColors:
+          type: array
+          items: { type: string }
+          description: Empty when the provider reports none / not applicable.
+        eyeColor: { type: string, nullable: true }
+        homeworldId:
+          type: string
+          nullable: true
+          description: externalId of the canonical Planet.
+        filmIds:
+          type: array
+          items: { type: string }
+        sourceUrl: { type: string, format: uri }
+        lastModifiedUtc: { type: string, format: date-time, nullable: true }
+    CharacterPage:
+      type: object
+      required: [items, totalCount]
+      properties:
+        items:
+          type: array
+          items: { $ref: "#/components/schemas/Character" }
+        totalCount: { type: integer }
+        nextPageToken:
+          type: string
+          nullable: true
+          description: Opaque token; null when there is no further page.
+    Planet:
+      type: object
+      required: [externalId, provider, name, climates, terrains]
+      properties:
+        externalId: { type: string }
+        provider: { type: string }
+        name: { type: string }
+        diameterKm: { type: integer, nullable: true }
+        rotationPeriodHours: { type: number, format: double, nullable: true }
+        orbitalPeriodDays: { type: number, format: double, nullable: true }
+        surfaceWaterPercent: { type: number, format: double, nullable: true }
+        population: { type: integer, format: int64, nullable: true }
+        climates:
+          type: array
+          items: { type: string }
+        terrains:
+          type: array
+          items: { type: string }
+        sourceUrl: { type: string, format: uri }
+        lastModifiedUtc: { type: string, format: date-time, nullable: true }
